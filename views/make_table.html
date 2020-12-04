@@ -1,0 +1,23 @@
+<p>The open items are as follows:</p>
+<table border="1">
+%for row in rows:
+  <tr>
+  %itm=0
+  %name=''
+  <td><button class='edit'>Edit</button><button class='del'>Delete</button></td>
+  %for col in row:
+	%itm=itm+1
+	%if itm==2: 
+    <td class='name'>{{col}}</td>
+	%end
+	%if itm==4:
+    <td>{{col}}<button class='pron' style="width:30px;height:30px;background-image:url('http://{{ip}}/jpg/speaker.jpg');background-size:cover;"></button></td>
+	%end
+	%if not itm in (2,4):
+    <td>{{col}}</td>
+	%end
+  %end
+  <td class='spk'></td>
+  </tr>
+%end
+</table>

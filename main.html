@@ -1,0 +1,302 @@
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf8" />
+	<link rel="stylesheet" type="text/css" href="mystyle.css" />
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha2/css/bootstrap.min.css"
+		integrity="sha384-DhY6onE6f3zzKbjUPRc2hOzGAdEf4/Dz+WJwBvEYL/lkkIsI3ihufq9hk9K4lVoK" crossorigin="anonymous">
+	<!--	
+	<script src="myjs.js"></script>
+	<script src="script/jquery-3.2.1.min.js"></script>
+-->
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha2/js/bootstrap.bundle.min.js"
+		integrity="sha384-BOsAfwzjNJHrJ8cZidOg56tcQWfp6y72vEJ8xQ9w6Quywb24iOsW913URv1IS4GD"
+		crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script>
+		var msg;
+		var host = 'http://' + location.host;
+		function setBackground(elem) {
+			$(elem).siblings().css("background-color", "white");
+			$(elem).css("background-color", "yellow");
+		}
+		function stkImp() {
+			$("#msg").text("資料處理中...");
+			var url = host + "/webdict/stk/imp";
+			$.getJSON(url, function (data) {
+				$('#msg').text(data.result);
+			});
+
+		}
+		function stkQry() {
+			$.getJSON(host + "/webdict/stk/qry?str=" + $("#qryFld").val(), function (data) {
+				$('#mainContent').html(data.result);
+				$(".salTy").each(function () {
+					if ($(this).text() == '買') {
+						$(this).css("background-color", "white");
+						$(this).siblings().css("background-color", "white");
+					} else {
+						$(this).css("background-color", "orange");
+						$(this).siblings().css("background-color", "orange");
+					}
+				});
+			});
+		}
+		function dictRunAdd() {
+			$.ajax({
+				url: host + '/webdict/runAdd',
+				type: 'POST',
+				data: {
+					'name': $('#dName').val().trim(),
+					'ty': $('#dTy').val().trim(),
+					'pron': $('#dPron').val().trim(),
+					'ch': $('#dCh').val().trim(),
+					'sc1': $('#dSc1').val().trim(),
+					'ex1': $('#dEx1').val().trim(),
+				},
+				error: function (xhr) {
+					alert('Ajax request 發生錯誤');
+				},
+				success: function (response) {
+					$('#mainContent').html(response);
+					$("#addContinue").attr("onClick", "dictAddView()");
+				}
+			});
+		}
+		function dictClear() {
+			$('#dName').val('');
+			$('#dTy').val('');
+			$('#dPron').val('');
+			$('#dCh').val('');
+			$('#dSc1').val('');
+			$('#dEx1').val('');
+		}
+		function dictAddView() {
+			$.ajax({
+				url: host + '/webdict/add',
+				type: 'GET',
+				error: function (xhr) {
+					alert('Ajax request 發生錯誤');
+				},
+				success: function (response) {
+					$('#mainContent').html(response);
+					$('textarea').css({ "width": "656px", "height": "100px" });
+					$("#btnAddSubmit").attr("onClick", "dictRunAdd()");
+					$("#btnClear").attr("onClick", "dictClear()");
+				}
+			});
+		}
+		function editSubmit() {
+			var nm = $('#dName').val();
+			$.ajax({
+				url: host + "/webdict/edit/" + escape($('#dName').val().trim()),
+				error: function (xhr) {
+					alert('Ajax request 發生錯誤');
+				},
+				type: 'GET',
+				data: {
+					'name': $('#dName').val().trim(),
+					'ty': $('#dTy').val().trim(),
+					'pron': $('#dPron').val().trim(),
+					'ch': $('#dCh').val().trim(),
+					'sc1': $('#dSc1').val().trim(),
+					'ex1': $('#dEx1').val().trim(),
+					'sc2': $('#dSc2').val().trim(),
+					'ex2': $('#dEx2').val().trim(),
+					'sc3': $('#dSc3').val().trim(),
+					'ex3': $('#dEx3').val().trim(),
+					'save': 'save',
+				},
+				success: function (response) {
+					$('#mainContent').html(response);
+					$("#editContinue").attr("onClick", "editContinue()");
+				},
+			});
+		}
+		function delSubmit() {
+			var nm = $('#dName').val();
+			$.ajax({
+				url: host + "/webdict/del/" + escape($('#dName').val().trim()),
+				error: function (xhr) {
+					alert('Ajax request 發生錯誤');
+				},
+				type: 'GET',
+				data: {
+					'name': $('#dName').val(),
+					'ty': $('#dTy').val(),
+					'pron': $('#dPron').val(),
+					'ch': $('#dCh').val(),
+					'sc1': $('#dSc1').val(),
+					'ex1': $('#dEx1').val(),
+					'sc2': $('#dSc2').val(),
+					'ex2': $('#dEx2').val(),
+					'sc3': $('#dSc3').val(),
+					'ex3': $('#dEx3').val(),
+					'save': 'save',
+				},
+				success: function (response) {
+					$('#mainContent').html(response);
+					$("#delContinue").attr("onClick", "editContinue()");
+				},
+			});
+		}
+		function editContinue() {
+			dictQry();
+		}
+		function dictQry() {
+			var a = host + '/webdict/qry?str=' + $("#qryFld").val().trim();
+			$.ajax({
+				// url: host + '/webdict/qry',
+				url: host + '/webdict/qry?str=' + $("#qryFld").val().trim(),
+				type: 'GET',
+				// data: { 'name': $("#qryFld").val().trim(), },
+				error: function (xhr) {
+					alert('Ajax request 發生錯誤');
+				},
+				success: function (response) {
+					$('#mainContent').html(response);
+					$(".pron").click(function () {
+						var nm = $(this).parent().siblings(".name").text();
+						$(this).parent().siblings(".spk").load(host + '/webdict/pronounce/' + escape(nm), function (responseTxt, statusTxt, xhr) {
+							if (statusTxt == "error")
+								alert("Error: " + xhr.status + "\n: " + xhr.statusText + '\nresponseTxt: ' + responseTxt);
+						})
+					})
+					$(".edit").click(function () {
+						var nm = $(this).parent().siblings(".name").text();
+						$.ajax({
+							url: host + "/webdict/edit/" + escape(nm),
+							error: function (xhr) {
+								alert('Ajax request 發生錯誤');
+							},
+							success: function (response) {
+								$('#mainContent').html(response);
+								$('textarea').css({ "width": "656px", "height": "100px" });
+								$("#editSubmit").attr("onClick", "editSubmit()");
+								$('#editCancel').attr("onClick", "editContinue()");
+							},
+						});
+					})
+					$(".del").click(function () {
+						var nm = $(this).parent().siblings(".name").text();
+						$.ajax({
+							url: host + "/webdict/del/" + escape(nm),
+							error: function (xhr) {
+								alert('Ajax request 發生錯誤');
+							},
+							success: function (response) {
+								$('#mainContent').html(response);
+								$('textarea').css({ "width": "656px", "height": "100px" });
+								$("#delSubmit").attr("onClick", "delSubmit()");
+								$('#delCancel').attr("onClick", "editContinue()");
+							},
+						});
+					})
+				}
+			});
+		}
+		function dictTest() {
+			var url = host + "/webdict/dictTest";
+			$.getJSON(url, function (dt) {
+				$('#mainContent').html(dt.responseText);
+				$(".pron").click(function () {
+					$(".spk").load(host + '/webdict/pronounce/' + escape(dt.name), function (responseTxt, statusTxt, xhr) {
+						if (statusTxt == "error")
+							alert("Error: " + xhr.status + "\n: " + xhr.statusText + '\nresponseTxt: ' + responseTxt);
+					})
+				});
+				$("#btnAnsSubmit").click(function () {
+					$.ajax({
+						url: host + '/webdict/dictAns',
+						type: 'POST',
+						data: {
+							'id': dt.id,
+							'name': dt.name,
+							'ty': dt.ty,
+							'pron': dt.pron,
+							'ch': dt.ch,
+							'sc1': dt.sc1,
+							'ex1': dt.ex1,
+							'sc2': dt.sc2,
+							'ex2': dt.ex2,
+							'sc3': dt.sc3,
+							'ex3': dt.ex3,
+							'ans': $('#ansText').val().trim(),
+						},
+						error: function (xhr) {
+							alert('Ajax request 發生錯誤');
+						},
+						success: function (response) {
+							$('#mainContent').html(response);
+							$("#testContinue").attr("onClick", "dictTest()");
+						}
+					});
+				});
+			});
+		}
+		function subMenuSelect(elem, mnu) {
+			setBackground(elem);
+			$("#qry").html("");
+			$("#mainContent").html("");
+			$("#msg").html("");
+			if (mnu == 'a1') {
+				stkImp()
+			}
+			if (mnu == 'a2') {
+				$("#qry").html('<p>請輸入欲查詢資料:</p><input id="qryFld" type="text" size="30" maxlength="100"/><input type="button" value="查詢" onclick="stkQry()"/>');
+			}
+			if (mnu == 'b1') {
+				dictAddView();
+			}
+			if (mnu == 'b2') {
+				$("#qry").html('<p>請輸入欲查詢資料:</p><input id="qryFld" type="text" size="30" maxlength="100"/><input type="button" value="查詢" onclick="dictQry()"/>');
+			}
+			if (mnu == 'b3') {
+				dictTest()
+			}
+		}
+		function menuSelect(elem, mnu) {
+			setBackground(elem);
+			$("#subMenu").html("");
+			$("#qry").html("");
+			$("#mainContent").html("");
+			$("#msg").html("");
+			if (mnu == "a") {
+				$("#subMenu").html("<table><tr><td id='a1'>資料轉檔</td><td id='a2'>查詢</td></tr></table>");
+				$("#a1").attr("onClick", "subMenuSelect(this,'a1')");
+				$("#a2").attr("onClick", "subMenuSelect(this,'a2')");
+			}
+			if (mnu == "b") {
+				$("#subMenu").html("<table><tr><td id='b1'>新增</td><td id='b2'>查詢</td><td id='b3'>測驗</td></tr></table>");
+				$("#b1").attr("onClick", "subMenuSelect(this,'b1')");
+				$("#b2").attr("onClick", "subMenuSelect(this,'b2')");
+				$("#b3").attr("onClick", "subMenuSelect(this,'b3')");
+			}
+		}
+
+	</script>
+</head>
+
+<body style="overflow:scroll;">
+	<!-- <div class="container-fluid"> -->
+	<h1>資訊管理系統</h1>
+	<div id="menu">
+		<table>
+			　<tr>
+				　　<td onClick="menuSelect(this,'a')">
+					投資
+				</td>
+				　　<td onClick="menuSelect(this,'b')">
+					英文生字
+				</td>
+				　　<td onClick="menuSelect(this,'c')">
+					財務
+				</td>
+				　</tr>
+		</table>
+	</div>
+	<p><span id="subMenu"></span></p>
+	<p><span id="subMenu1"></span></p>
+	<p><span id="qry"></span></p>
+	<p><span id="mainContent"></span></p>
+	<p><span id="msg"></span></p>
+	<!-- </div> -->
+</body>

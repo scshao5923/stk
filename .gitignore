@@ -1,0 +1,20 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+#db
+*.db
+
+#swp
+*.swp
+
+node_modules/
+jpg/
+tmp/
+
+#json
+*.json
+
+#txt
+*.txt

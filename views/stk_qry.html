@@ -1,0 +1,15 @@
+<table border="1">
+%for row in rows:
+  <tr>
+  %itm=0
+  %for col in row:
+  	%itm=itm+1
+	%if itm==3: 
+    <td class='salTy'>{{col}}</td>
+	%else:
+    <td>{{col}}</td>
+	%end
+  %end
+  </tr>
+%end
+</table>
